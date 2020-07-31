@@ -8,6 +8,9 @@ SHA := $(shell git rev-parse --short HEAD)
 DEPLOY_TIME := $(shell date -u +"%Y-%m-%dT%H-%M-%SZ_%s")
 HOST := $(shell hostname)
 
+test:
+	npm run-script test
+
 dockerbuild:
 	docker build -t $(SITE_NAME):latest .
 
@@ -22,4 +25,6 @@ tag:
 	git tag "$(DEPLOY_TIME)_$(SHA)"
 	git push https://${GH_TOKEN}@github.com/$(REPO_NAME) $(DEPLOY_TIME)_$(SHA)
 
-.PHONY: dockerbuild dockerpush tag
+deploy: test dockerbuild dockerpush
+
+.PHONY: test dockerbuild dockerpush tag

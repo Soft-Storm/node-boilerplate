@@ -16,7 +16,5 @@ before_script:
   - npm install
 
 script:
-  - npm run-script test
-  - make dockerbuild
-  - make tag
-  - make dockerpush
+  - if [ "$TRAVIS_BRANCH" = "mainline" ] && [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
+    make deploy; else make test; fi
