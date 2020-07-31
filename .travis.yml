@@ -18,7 +18,7 @@ before_script:
 script:
   - npm run-script test
   - docker build -t node-boilerplate .
-  - docker login -u '$(DOCKER_USER)' -p '$(DOCKER_PASSWORD)'
+  - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
   - docker tag node-boilerplate soft-storm/node-boilerplate:$TRAVIS_BUILD_NUMBER
   - docker push soft-storm/node-boilerplate:$TRAVIS_BUILD_NUMBER
   - docker tag node-boilerplate soft-storm/node-boilerplate:latest
