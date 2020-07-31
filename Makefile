@@ -18,4 +18,8 @@ dockerpush:
 	docker push $(DOCKER_USER)/$(SITE_NAME):latest
 	docker push $(DOCKER_USER)/$(SITE_NAME):$(SHA)
 
-.PHONY: dockerbuild dockerpush
+tag:
+	git tag "$(DEPLOY_TIME)_$(SHA)"
+	git push https://${GH_TOKEN}@github.com/$(REPO_NAME) $(DEPLOY_TIME)_$(SHA)
+
+.PHONY: dockerbuild dockerpush tag
