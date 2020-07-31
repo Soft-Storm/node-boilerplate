@@ -1,6 +1,25 @@
 language: node_js
+
 node_js:
-  - "stable"
+  - 'stable'
+
+sudo: required
+
+services:
+  - 'docker'
+
 cache:
   directories:
-    - "node_modules"
+    - 'node_modules'
+
+before_script:
+  - npm install
+
+script:
+  - npm run-script test
+  - docker build -t node-boilerplate .
+  - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+  - docker tag node-boilerplate Soft-Storm/node-boilerplate:$TRAVIS_BUILD_NUMBER
+  - docker push Soft-Storm/node-boilerplate:$TRAVIS_BUILD_NUMBER
+  - docker tag node-boilerplate Soft-Storm/node-boilerplate:latest
+  - docker push Soft-Storm/node-boilerplate:latest

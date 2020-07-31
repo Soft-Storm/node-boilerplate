@@ -26,7 +26,13 @@ describe('Users Tests', () => {
       console.error(`Database error: ${error}`);
     }
   });
-
+  after(async () => {
+    try {
+      await User.deleteMany({});
+    } catch (error) {
+      console.error(`Database error: ${error}`);
+    }
+  });
   /*
    * Test the /POST register
    */
