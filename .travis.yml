@@ -18,4 +18,5 @@ before_script:
 script:
   - npm run-script test
   - make dockerbuild
+  - make tag
   - make dockerpush
