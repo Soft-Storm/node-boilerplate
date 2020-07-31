@@ -1,7 +1,4 @@
-language: node_js
-
-node_js:
-  - 'stable'
+language: bash
 
 sudo: required
 
@@ -17,9 +14,5 @@ before_script:
 
 script:
   - npm run-script test
-  - docker build -t node-boilerplate .
-  - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-  - docker tag node-boilerplate $DOCKER_USER/node-boilerplate:$TRAVIS_BUILD_NUMBER
-  - docker push $DOCKER_USER/node-boilerplate:$TRAVIS_BUILD_NUMBER
-  - docker tag node-boilerplate $DOCKER_USER/node-boilerplate:latest
-  - docker push $DOCKER_USER/node-boilerplate:latest
+  - make dockerbuild
+  - make dockerpush
