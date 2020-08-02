@@ -1,0 +1,9 @@
+{
+  "tabWidth": 2,
+  "printWidth": 90,
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "none",
+  "arrow-body-style": ["error", "always"],
+  "operator-linebreak": ["error", "after"]
+}
