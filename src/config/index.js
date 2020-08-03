@@ -2,8 +2,10 @@ require('dotenv').config();
 
 module.exports = {
   JWT: {
-    jwtSecret: process.env.JWT_SECRET,
-    jwtExpirationInterval: process.env.JWT_EXPIRATION_INTERVAL
+    jwtAccessSecret: process.env.JWT_ACCESS_SECRET,
+    jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
+    jwtAccessLife: process.env.JWT_ACCESS_LIFE,
+    jwtRefreshLife: process.env.JWT_REFRESH_LIFE
   },
   DB: {
     mongoURI:

@@ -2,7 +2,6 @@
 const bcrypt = require('bcryptjs');
 const httpStatus = require('http-status');
 const { DateTime } = require('luxon');
-const { v4 } = require('uuid');
 const User = require('./model');
 const { ApiError } = require('../../../utils/ApiError');
 const { SERVER } = require('../../../config');
@@ -23,24 +22,27 @@ const {
  */
 
 async function generateTokenResponse(user) {
-  const refreshToken = v4() + user._id;
   const accessToken = user.token();
+  const refreshToken = user.token(false);
+  const accessExpiresIn = DateTime.local()
+    .plus({ seconds: JWT.jwtAccessLife })
+    .toSeconds();
+  const refreshExpiresIn = DateTime.local()
+    .plus({ seconds: JWT.jwtRefreshLife })
+    .toSeconds();
   // eslint-disable-next-line no-param-reassign
   user.sessions = [
     ...user.sessions,
     {
-      refresh_token: refreshToken,
       access_token: accessToken,
-      created_at: DateTime.local().toSeconds()
+      refresh_token: refreshToken,
+      access_exp: accessExpiresIn,
+      refresh_exp: refreshExpiresIn
     }
   ];
   user.save();
 
-  const expiresIn = DateTime.local()
-    .plus({ seconds: JWT.jwtExpirationInterval })
-    .toSeconds();
-
-  return { accessToken, expiresIn, refreshToken };
+  return { accessToken, refreshToken, accessExpiresIn, refreshExpiresIn };
 }
 
 /**
@@ -163,7 +165,9 @@ exports.login = async (req, res, next) => {
 
     res.set('authorization', token.accessToken);
     res.set('x-refresh-token', token.refreshToken);
-    res.set('x-token-expiry-time', token.expiresIn);
+    res.set('x-access-expiry-time', token.accessExpiresIn);
+    res.set('x-refresh-expiry-time', token.refreshExpiresIn);
+
     res.status(httpStatus.OK);
 
     return res.json({
@@ -203,24 +207,24 @@ exports.refreshToken = async (req, res, next) => {
         status: httpStatus.CONFLICT
       });
     }
-    const refreshTokenKey = v4() + user._id;
-    const accessTokenKey = user.token();
+
+    const token = await generateTokenResponse(user);
+
     await User.updateOne(
       { _id: user._id, 'sessions.refresh_token': refreshToken },
       {
-        'sessions.$.access_token': accessTokenKey,
-        'sessions.$.refresh_token': refreshTokenKey,
-        'sessions.$.updated_at': DateTime.local().toSeconds()
+        'sessions.$.access_token': token.accessToken,
+        'sessions.$.refresh_token': token.refreshToken,
+        'sessions.$.access_exp': token.accessExpiresIn,
+        'sessions.$.refresh_exp': token.refreshExpiresIn
       }
     );
 
-    const expiresIn = DateTime.local()
-      .plus({ seconds: JWT.jwtExpirationInterval })
-      .toSeconds();
+    res.set('authorization', token.accessToken);
+    res.set('x-refresh-token', token.refreshToken);
+    res.set('x-access-expiry-time', token.accessExpiresIn);
+    res.set('x-refresh-expiry-time', token.refreshExpiresIn);
 
-    res.set('authorization', accessTokenKey);
-    res.set('x-refresh-token', refreshTokenKey);
-    res.set('x-token-expiry-time', expiresIn);
     return res.status(httpStatus.NO_CONTENT).json();
   } catch (error) {
     return next(error);

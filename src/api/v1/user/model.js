@@ -35,10 +35,8 @@ const userSchema = new mongoose.Schema({
     {
       access_token: { type: String },
       refresh_token: { type: String },
-      created_at: {
-        default: DateTime.local().toSeconds(),
-        type: Number
-      }
+      refresh_exp: { type: Number },
+      access_exp: { type: Number }
     }
   ],
   created_at: {
@@ -87,15 +85,17 @@ userSchema.method({
 
     return result;
   },
-  token() {
+  token(isAccess = true) {
     const date = DateTime.local();
     const payload = {
       _id: this._id,
-      exp: date.plus({ seconds: JWT.jwtExpirationInterval }).toSeconds(),
+      exp: date
+        .plus({ seconds: isAccess ? JWT.jwtAccessLife : JWT.jwtRefreshLife })
+        .toSeconds(),
       iat: date.toSeconds()
     };
 
-    return jwt.sign(payload, JWT.jwtSecret);
+    return jwt.sign(payload, isAccess ? JWT.jwtAccessSecret : JWT.jwtRefreshSecret);
   }
 });
 

@@ -279,11 +279,13 @@ describe('Users Tests', () => {
               expect(result.header).to.contain.keys(
                 'authorization',
                 'x-refresh-token',
-                'x-token-expiry-time'
+                'x-access-expiry-time',
+                'x-refresh-expiry-time'
               );
               expect(result.header.authorization).to.be.an('string');
               expect(result.header['x-refresh-token']).to.be.an('string');
-              expect(result.header['x-token-expiry-time']).to.be.an('string');
+              expect(result.header['x-access-expiry-time']).to.be.an('string');
+              expect(result.header['x-refresh-expiry-time']).to.be.an('string');
               done();
             });
         });
@@ -325,74 +327,106 @@ describe('Users Tests', () => {
    */
   describe('/PUT refresh-token', () => {
     let clock;
-    before((done) => {
-      clock = sinon.useFakeTimers({
-        now: parseFloat(resHeader['x-token-expiry-time'] + 1) * 1000,
-        shouldAdvanceTime: true
+    describe('/PUT refresh-token : access_token', () => {
+      before((done) => {
+        clock = sinon.useFakeTimers({
+          now: (parseFloat(resHeader['x-access-expiry-time']) + 1) * 1000,
+          shouldAdvanceTime: true
+        });
+        done();
       });
-      done();
-    });
-    after((done) => {
-      clock.restore();
-      done();
-    });
-    it('it should return UNAUTHORIZED', (done) => {
-      chai
-        .request(server)
-        .get('/v1/user/is-logged-in')
-        .set('authorization', resHeader.authorization)
-        .end((error, res) => {
-          expect(res).to.have.status(httpStatus.UNAUTHORIZED);
-          expect(res.body).to.be.an('object');
-          expect(res.body).to.contain.keys('code', 'message');
-          expect(res.body.code).to.equals(httpStatus.UNAUTHORIZED);
-          expect(res.body.message).to.deep.equals('Token expired');
-          done();
-        });
-    });
-    it('it should return CONFLICT', (done) => {
-      chai
-        .request(server)
-        .put('/v1/user/refresh-token')
-        .set('authorization', resHeader.authorization)
-        .send({ refreshToken: `${resHeader['x-refresh-token']}foo` })
-        .end((error, res) => {
-          expect(res).to.have.status(httpStatus.CONFLICT);
-          expect(res.body).to.be.an('object');
-          expect(res.body).to.contain.keys('code', 'message');
-          expect(res.body.code).to.equals(httpStatus.CONFLICT);
-          expect(res.body.message).to.deep.equals('Refresh token did not match');
-          done();
-        });
-    });
-    it('it should return NO_CONTENT', (done) => {
-      chai
-        .request(server)
-        .put('/v1/user/refresh-token')
-        .set('authorization', resHeader.authorization)
-        .send({ refreshToken: resHeader['x-refresh-token'] })
-        .end((err, res) => {
-          resHeader = { ...res.header };
+      after((done) => {
+        clock.restore();
+        done();
+      });
+      it('it should return UNAUTHORIZED', (done) => {
+        chai
+          .request(server)
+          .get('/v1/user/is-logged-in')
+          .set('authorization', resHeader.authorization)
+          .end((error, res) => {
+            expect(res).to.have.status(httpStatus.UNAUTHORIZED);
+            expect(res.body).to.be.an('object');
+            expect(res.body).to.contain.keys('code', 'message');
+            expect(res.body.code).to.equals(httpStatus.UNAUTHORIZED);
+            expect(res.body.message).to.deep.equals('Access token expired');
+            done();
+          });
+      });
+      it('it should return CONFLICT', (done) => {
+        chai
+          .request(server)
+          .put('/v1/user/refresh-token')
+          .set('authorization', resHeader.authorization)
+          .send({ refreshToken: `${resHeader['x-refresh-token']}foo` })
+          .end((error, res) => {
+            expect(res).to.have.status(httpStatus.CONFLICT);
+            expect(res.body).to.be.an('object');
+            expect(res.body).to.contain.keys('code', 'message');
+            expect(res.body.code).to.equals(httpStatus.CONFLICT);
+            expect(res.body.message).to.deep.equals('Refresh token did not match');
+            done();
+          });
+      });
+      it('it should return NO_CONTENT', (done) => {
+        chai
+          .request(server)
+          .put('/v1/user/refresh-token')
+          .set('authorization', resHeader.authorization)
+          .send({ refreshToken: resHeader['x-refresh-token'] })
+          .end((err, res) => {
+            resHeader = { ...res.header };
 
-          expect(res).to.have.status(httpStatus.NO_CONTENT);
-          expect(res.header).to.be.an('object');
-          expect(res.header).to.contain.keys(
-            'authorization',
-            'x-refresh-token',
-            'x-token-expiry-time'
-          );
-          expect(res.header.authorization).to.be.an('string');
-          expect(res.header['x-refresh-token']).to.be.an('string');
-          expect(res.header['x-token-expiry-time']).to.be.an('string');
-          chai
-            .request(server)
-            .get('/v1/user/is-logged-in')
-            .set('authorization', resHeader.authorization)
-            .end((error, result) => {
-              expect(result).to.have.status(httpStatus.OK);
-              done();
-            });
+            expect(res).to.have.status(httpStatus.NO_CONTENT);
+            expect(res.header).to.be.an('object');
+            expect(res.header).to.contain.keys(
+              'authorization',
+              'x-refresh-token',
+              'x-access-expiry-time',
+              'x-refresh-expiry-time'
+            );
+            expect(res.header.authorization).to.be.an('string');
+            expect(res.header['x-refresh-token']).to.be.an('string');
+            expect(res.header['x-access-expiry-time']).to.be.an('string');
+            expect(res.header['x-refresh-expiry-time']).to.be.an('string');
+            chai
+              .request(server)
+              .get('/v1/user/is-logged-in')
+              .set('authorization', resHeader.authorization)
+              .end((error, result) => {
+                expect(result).to.have.status(httpStatus.OK);
+                done();
+              });
+          });
+      });
+    });
+    describe('/PUT refresh-token : refresh_token', () => {
+      before((done) => {
+        clock = sinon.useFakeTimers({
+          now: (parseFloat(resHeader['x-refresh-expiry-time']) + 1) * 1000,
+          shouldAdvanceTime: true
         });
+        done();
+      });
+      after((done) => {
+        clock.restore();
+        done();
+      });
+      it('it should return UNAUTHORIZED', (done) => {
+        chai
+          .request(server)
+          .put('/v1/user/refresh-token')
+          .set('authorization', resHeader.authorization)
+          .send({ refreshToken: resHeader['x-refresh-token'] })
+          .end((error, res) => {
+            expect(res).to.have.status(httpStatus.UNAUTHORIZED);
+            expect(res.body).to.be.an('object');
+            expect(res.body).to.contain.keys('code', 'message');
+            expect(res.body.code).to.equals(httpStatus.UNAUTHORIZED);
+            expect(res.body.message).to.deep.equals('Refresh token expired');
+            done();
+          });
+      });
     });
   });
 
@@ -555,11 +589,13 @@ describe('Users Tests', () => {
               expect(result.header).to.contain.keys(
                 'authorization',
                 'x-refresh-token',
-                'x-token-expiry-time'
+                'x-access-expiry-time',
+                'x-refresh-expiry-time'
               );
               expect(result.header.authorization).to.be.an('string');
               expect(result.header['x-refresh-token']).to.be.an('string');
-              expect(result.header['x-token-expiry-time']).to.be.an('string');
+              expect(result.header['x-access-expiry-time']).to.be.an('string');
+              expect(result.header['x-refresh-expiry-time']).to.be.an('string');
               done();
             });
         });

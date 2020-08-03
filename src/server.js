@@ -13,7 +13,8 @@ const { SECURITY } = require('./config');
 const ddosInstance = new Ddos(SECURITY.ddosConfig);
 
 const corsOptions = {
-  exposedHeaders: 'authorization, x-refresh-token, x-token-expiry-time',
+  exposedHeaders:
+    'authorization, x-refresh-token, x-access-expiry-time, x-refresh-expiry-time',
   origin: (origin, callback) => {
     if (!SECURITY.whitelist || SECURITY.whitelist.includes(origin)) {
       callback(null, true);
