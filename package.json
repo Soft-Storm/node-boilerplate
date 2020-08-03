@@ -12,7 +12,7 @@
     "build_start": "npm run-script build && npm run-script start",
     "test": "mocha --timeout 10000 --exit",
     "lint": "./node_modules/.bin/eslint src/**/*.js test/**/*.js --fix",
-    "precommit": "lint-staged && npm run test"
+    "precommit": "lint-staged"
   },
   "husky": {
     "hooks": {
@@ -22,6 +22,7 @@
   "lint-staged": {
     "src/**/*.js": [
       "npm run lint",
+      "npm run test",
       "git add ."
     ]
   },
