@@ -38,10 +38,6 @@ const userSchema = new mongoose.Schema({
       created_at: {
         default: DateTime.local().toSeconds(),
         type: Number
-      },
-      is_active: {
-        default: true,
-        type: Boolean
       }
     }
   ],

@@ -18,23 +18,20 @@ const {
  * @async
  * Returns a formated object with tokens
  * @param {object} user object
- * @param {object} deviceInfo device informations if available
  * @returns {object} access token object
  * @private
  */
 
-async function generateTokenResponse(user, deviceInfo) {
+async function generateTokenResponse(user) {
   const refreshToken = v4() + user._id;
   const accessToken = user.token();
   // eslint-disable-next-line no-param-reassign
   user.sessions = [
     ...user.sessions,
     {
-      ...deviceInfo,
+      refresh_token: refreshToken,
       access_token: accessToken,
-      created_at: DateTime.local().toSeconds(),
-      is_active: true,
-      refresh_token: refreshToken
+      created_at: DateTime.local().toSeconds()
     }
   ];
   user.save();
@@ -125,7 +122,7 @@ exports.emailVerification = async (req, res, next) => {
  */
 exports.login = async (req, res, next) => {
   try {
-    const { userName, password, clientType, deviceToken } = req.body;
+    const { userName, password } = req.body;
     const user = await User.findOne(
       { user_name: userName },
       {
@@ -162,10 +159,7 @@ exports.login = async (req, res, next) => {
       });
     }
 
-    const token = await generateTokenResponse(user, {
-      client_type: clientType,
-      device_token: deviceToken
-    });
+    const token = await generateTokenResponse(user);
 
     res.set('authorization', token.accessToken);
     res.set('x-refresh-token', token.refreshToken);
