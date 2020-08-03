@@ -91,7 +91,7 @@ userSchema.method({
     const date = DateTime.local();
     const payload = {
       _id: this._id,
-      exp: date.plus({ minutes: JWT.jwtExpirationInterval }).toSeconds(),
+      exp: date.plus({ seconds: JWT.jwtExpirationInterval }).toSeconds(),
       iat: date.toSeconds()
     };
 

@@ -37,7 +37,7 @@ async function generateTokenResponse(user) {
   user.save();
 
   const expiresIn = DateTime.local()
-    .plus({ minutes: JWT.jwtExpirationInterval })
+    .plus({ seconds: JWT.jwtExpirationInterval })
     .toSeconds();
 
   return { accessToken, expiresIn, refreshToken };
@@ -215,7 +215,7 @@ exports.refreshToken = async (req, res, next) => {
     );
 
     const expiresIn = DateTime.local()
-      .plus({ minutes: JWT.jwtExpirationInterval })
+      .plus({ seconds: JWT.jwtExpirationInterval })
       .toSeconds();
 
     res.set('authorization', accessTokenKey);
