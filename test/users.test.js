@@ -375,20 +375,13 @@ describe('Users Tests', () => {
           .set('authorization', resHeader.authorization)
           .send({ refreshToken: resHeader['x-refresh-token'] })
           .end((err, res) => {
-            resHeader = { ...res.header };
+            resHeader = { ...resHeader, ...res.header };
 
             expect(res).to.have.status(httpStatus.NO_CONTENT);
             expect(res.header).to.be.an('object');
-            expect(res.header).to.contain.keys(
-              'authorization',
-              'x-refresh-token',
-              'x-access-expiry-time',
-              'x-refresh-expiry-time'
-            );
+            expect(res.header).to.contain.keys('authorization', 'x-access-expiry-time');
             expect(res.header.authorization).to.be.an('string');
-            expect(res.header['x-refresh-token']).to.be.an('string');
             expect(res.header['x-access-expiry-time']).to.be.an('string');
-            expect(res.header['x-refresh-expiry-time']).to.be.an('string');
             chai
               .request(server)
               .get('/v1/user/is-logged-in')

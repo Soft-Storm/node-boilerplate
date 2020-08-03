@@ -208,22 +208,21 @@ exports.refreshToken = async (req, res, next) => {
       });
     }
 
-    const token = await generateTokenResponse(user);
+    const accessToken = user.token();
+    const accessExpiresIn = DateTime.local()
+      .plus({ seconds: JWT.jwtAccessLife })
+      .toSeconds();
 
     await User.updateOne(
       { _id: user._id, 'sessions.refresh_token': refreshToken },
       {
-        'sessions.$.access_token': token.accessToken,
-        'sessions.$.refresh_token': token.refreshToken,
-        'sessions.$.access_exp': token.accessExpiresIn,
-        'sessions.$.refresh_exp': token.refreshExpiresIn
+        'sessions.$.access_token': accessToken,
+        'sessions.$.access_exp': accessExpiresIn
       }
     );
 
-    res.set('authorization', token.accessToken);
-    res.set('x-refresh-token', token.refreshToken);
-    res.set('x-access-expiry-time', token.accessExpiresIn);
-    res.set('x-refresh-expiry-time', token.refreshExpiresIn);
+    res.set('authorization', accessToken);
+    res.set('x-access-expiry-time', accessExpiresIn);
 
     return res.status(httpStatus.NO_CONTENT).json();
   } catch (error) {
