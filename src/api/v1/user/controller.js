@@ -194,7 +194,7 @@ exports.refreshToken = async (req, res, next) => {
     const { refreshToken } = req.body;
 
     const user = await User.findOne({
-      sessions: { $elemMatch: { is_active: true, refresh_token: refreshToken } }
+      sessions: { $elemMatch: { refresh_token: refreshToken } }
     });
 
     if (!user) {
@@ -236,7 +236,7 @@ exports.logout = async (req, res, next) => {
     const { refreshToken } = req.body;
 
     const user = await User.findOne({
-      sessions: { $elemMatch: { is_active: true, refresh_token: refreshToken } }
+      sessions: { $elemMatch: { refresh_token: refreshToken } }
     });
 
     if (!user) {
