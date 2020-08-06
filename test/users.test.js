@@ -300,13 +300,13 @@ describe('Users Tests', () => {
       chai
         .request(server)
         .get('/v1/user/is-logged-in')
-        .set('authorization', `${resHeader.authorization}foo`)
+        .set('authorization', `foo${resHeader.authorization}`)
         .end((error, res) => {
           expect(res).to.have.status(httpStatus.UNAUTHORIZED);
           expect(res.body).to.be.an('object');
           expect(res.body).to.contain.keys('code', 'message');
           expect(res.body.code).to.equals(httpStatus.UNAUTHORIZED);
-          expect(res.body.message).to.deep.equals('Unauthorized');
+          expect(res.body.message).to.deep.equals('Malformed access token');
           done();
         });
     });
@@ -450,14 +450,7 @@ describe('Users Tests', () => {
         .send({ refreshToken: resHeader['x-refresh-token'] })
         .end((err, res) => {
           expect(res).to.have.status(httpStatus.NO_CONTENT);
-          chai
-            .request(server)
-            .get('/v1/user/is-logged-in')
-            .set('authorization', resHeader.authorization)
-            .end((error, result) => {
-              expect(result).to.have.status(httpStatus.UNAUTHORIZED);
-              done();
-            });
+          done();
         });
     });
   });

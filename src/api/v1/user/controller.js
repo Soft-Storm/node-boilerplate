@@ -345,7 +345,7 @@ exports.changePassword = async (req, res, next) => {
   try {
     const {
       body: { password, oldPassword },
-      user: { _id: userId }
+      userId
     } = req;
 
     const query = { _id: userId };
@@ -387,7 +387,7 @@ exports.editProfile = async (req, res, next) => {
   try {
     const {
       body: { firstName, lastName },
-      user: { _id: userId }
+      userId
     } = req;
 
     const updateFields = { first_name: firstName, last_name: lastName };

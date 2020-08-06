@@ -16,14 +16,14 @@ const authorize = async (req, res, next, role, isRefresh) => {
   if (!authorization) {
     return next(apiError);
   }
-  let tokenResult = '';
+  let accessResult = '';
   try {
-    tokenResult = jwt.decode(authorization, JWT.jwtAccessSecret);
+    accessResult = jwt.decode(authorization, JWT.jwtAccessSecret);
   } catch (e) {
     apiError.message = 'Malformed access token';
     return next(apiError);
   }
-  if (!tokenResult || !tokenResult.exp || !tokenResult._id) {
+  if (!accessResult || !accessResult.exp || !accessResult._id) {
     apiError.message = 'Malformed access token';
 
     await User.findOneAndUpdate(
@@ -60,19 +60,12 @@ const authorize = async (req, res, next, role, isRefresh) => {
       apiError.message = 'Refresh token expired';
       return next(apiError);
     }
-  } else if (tokenResult.exp - DateTime.local().toSeconds() < 0) {
+  } else if (accessResult.exp - DateTime.local().toSeconds() < 0) {
     apiError.message = 'Access token expired';
     return next(apiError);
   }
 
-  const user = await User.findOne({
-    'sessions.access_token': authorization
-  }).lean();
-  if (!user) {
-    return next(apiError);
-  }
-
-  req.user = user;
+  req.userId = accessResult._id;
   return next();
 };
 
