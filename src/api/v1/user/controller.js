@@ -141,7 +141,7 @@ exports.login = async (req, res, next) => {
     if (!user) {
       throw new ApiError({
         message: 'Credentials did not match',
-        status: httpStatus.CONFLICT
+        status: httpStatus.UNAUTHORIZED
       });
     }
     const passwordMatches = await user.passwordMatches(password);
@@ -149,7 +149,7 @@ exports.login = async (req, res, next) => {
     if (!passwordMatches) {
       throw new ApiError({
         message: 'Credentials did not match',
-        status: httpStatus.CONFLICT
+        status: httpStatus.UNAUTHORIZED
       });
     }
 
@@ -204,7 +204,7 @@ exports.refreshToken = async (req, res, next) => {
     if (!user) {
       throw new ApiError({
         message: 'Refresh token did not match',
-        status: httpStatus.CONFLICT
+        status: httpStatus.UNAUTHORIZED
       });
     }
 
@@ -245,7 +245,7 @@ exports.logout = async (req, res, next) => {
     if (!user) {
       throw new ApiError({
         message: 'Refresh token did not match',
-        status: httpStatus.CONFLICT
+        status: httpStatus.UNAUTHORIZED
       });
     }
 
@@ -356,7 +356,7 @@ exports.changePassword = async (req, res, next) => {
     if (!isPasswordMatches) {
       throw new ApiError({
         message: 'Old password does not matched',
-        status: httpStatus.CONFLICT
+        status: httpStatus.UNAUTHORIZED
       });
     }
 

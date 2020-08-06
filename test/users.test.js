@@ -160,7 +160,7 @@ describe('Users Tests', () => {
    * Test the /POST login
    */
   describe('/POST login', () => {
-    it('it should return CONFLICT', (done) => {
+    it('it should return UNAUTHORIZED', (done) => {
       const loginData = {
         userName: 'unexistantUser',
         password: user.password
@@ -170,15 +170,15 @@ describe('Users Tests', () => {
         .post('/v1/user/login')
         .send(loginData)
         .end((err, res) => {
-          expect(res).to.have.status(httpStatus.CONFLICT);
+          expect(res).to.have.status(httpStatus.UNAUTHORIZED);
           expect(res.body).to.be.an('object');
           expect(res.body).to.contain.keys('code', 'message');
-          expect(res.body.code).to.equals(httpStatus.CONFLICT);
+          expect(res.body.code).to.equals(httpStatus.UNAUTHORIZED);
           expect(res.body.message).to.deep.equals('Credentials did not match');
           done();
         });
     });
-    it('it should return CONFLICT', (done) => {
+    it('it should return UNAUTHORIZED', (done) => {
       const loginData = {
         userName: user.userName,
         password: 'fooPasswooord'
@@ -188,10 +188,10 @@ describe('Users Tests', () => {
         .post('/v1/user/login')
         .send(loginData)
         .end((err, res) => {
-          expect(res).to.have.status(httpStatus.CONFLICT);
+          expect(res).to.have.status(httpStatus.UNAUTHORIZED);
           expect(res.body).to.be.an('object');
           expect(res.body).to.contain.keys('code', 'message');
-          expect(res.body.code).to.equals(httpStatus.CONFLICT);
+          expect(res.body.code).to.equals(httpStatus.UNAUTHORIZED);
           expect(res.body.message).to.deep.equals('Credentials did not match');
           done();
         });
@@ -353,17 +353,17 @@ describe('Users Tests', () => {
             done();
           });
       });
-      it('it should return CONFLICT', (done) => {
+      it('it should return UNAUTHORIZED', (done) => {
         chai
           .request(server)
           .put('/v1/user/refresh-token')
           .set('authorization', resHeader.authorization)
           .send({ refreshToken: `${resHeader['x-refresh-token']}foo` })
           .end((error, res) => {
-            expect(res).to.have.status(httpStatus.CONFLICT);
+            expect(res).to.have.status(httpStatus.UNAUTHORIZED);
             expect(res.body).to.be.an('object');
             expect(res.body).to.contain.keys('code', 'message');
-            expect(res.body.code).to.equals(httpStatus.CONFLICT);
+            expect(res.body.code).to.equals(httpStatus.UNAUTHORIZED);
             expect(res.body.message).to.deep.equals('Refresh token did not match');
             done();
           });
@@ -427,17 +427,17 @@ describe('Users Tests', () => {
    * Test the /PUT logout
    */
   describe('/PUT logout', () => {
-    it('it should return CONFLICT', (done) => {
+    it('it should return UNAUTHORIZED', (done) => {
       chai
         .request(server)
         .put('/v1/user/logout')
         .set('authorization', resHeader.authorization)
         .send({ refreshToken: `${resHeader['x-refresh-token']}foo` })
         .end((err, res) => {
-          expect(res).to.have.status(httpStatus.CONFLICT);
+          expect(res).to.have.status(httpStatus.UNAUTHORIZED);
           expect(res.body).to.be.an('object');
           expect(res.body).to.contain.keys('code', 'message');
-          expect(res.body.code).to.equals(httpStatus.CONFLICT);
+          expect(res.body.code).to.equals(httpStatus.UNAUTHORIZED);
           expect(res.body.message).to.deep.equals('Refresh token did not match');
           done();
         });
@@ -592,7 +592,7 @@ describe('Users Tests', () => {
    * Test the /PUT change-password
    */
   describe('/PUT reset-password', () => {
-    it('it should return CONFLICT', (done) => {
+    it('it should return UNAUTHORIZED', (done) => {
       const wrongData = { oldPassword: 'incorrectPass', password: 'newDummyPass2' };
       chai
         .request(server)
@@ -600,10 +600,10 @@ describe('Users Tests', () => {
         .set('authorization', resHeader.authorization)
         .send(wrongData)
         .end((err, res) => {
-          expect(res).to.have.status(httpStatus.CONFLICT);
+          expect(res).to.have.status(httpStatus.UNAUTHORIZED);
           expect(res.body).to.be.an('object');
           expect(res.body).to.contain.keys('code', 'message');
-          expect(res.body.code).to.equals(httpStatus.CONFLICT);
+          expect(res.body.code).to.equals(httpStatus.UNAUTHORIZED);
           expect(res.body.message).to.deep.equals('Old password does not matched');
           done();
         });
