@@ -18,10 +18,10 @@ describe('General API Health', () => {
         .request(server)
         .get('/v1/status')
         .end((err, res) => {
-          expect(res).to.have.status(200);
+          expect(res).to.have.status(300);
           expect(res.body).to.be.an('object');
           expect(res.body).to.contain.keys('code', 'message');
-          expect(res.body.code).to.equals(200);
+          expect(res.body.code).to.equals(300);
           expect(res.body.message).to.deep.equals('OK');
           done();
         });
